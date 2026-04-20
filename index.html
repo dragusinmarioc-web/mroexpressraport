@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VTC Manager - ETS2 Roleplay</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; }
+        .card { background-color: #1e293b; border: 1px solid #334155; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-10 text-center">
+            <h1 class="text-4xl font-bold text-blue-500">RAPORT CURSE</h1>
+            <p class="text-slate-400">Sistem Intern de Monitorizare a Curselelor</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="card p-6 rounded-xl shadow-lg">
+                <h2 class="text-xl font-semibold mb-4 border-b border-slate-700 pb-2">Raport Cursă Nouă</h2>
+                <form id="truckForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm opacity-70">Nume Șofer</label>
+                        <input type="text" id="sofer" class="w-full bg-slate-900 border border-slate-700 rounded p-2 focus:border-blue-500 outline-none" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-sm opacity-70">Camion (Model)</label>
+                            <input type="text" id="camion" placeholder="ex: Scania S" class="w-full bg-slate-900 border border-slate-700 rounded p-2 outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm opacity-70">Nr. Înmatriculare</label>
+                            <input type="text" id="nrAuto" placeholder="B 123 TEM" class="w-full bg-slate-900 border border-slate-700 rounded p-2 outline-none" required>
+                        </div>
+                    </div>
+                    <hr class="border-slate-700">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-sm opacity-70">Km Start</label>
+                            <input type="number" id="kmStart" class="w-full bg-slate-900 border border-slate-700 rounded p-2 outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm opacity-70">Km Sosire</label>
+                            <input type="number" id="kmFinal" class="w-full bg-slate-900 border border-slate-700 rounded p-2 outline-none" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm opacity-70">Motorină Consumată (Litri)</label>
+                        <input type="number" id="litri" class="w-full bg-slate-900 border border-slate-700 rounded p-2 outline-none" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">Trimite Raportul</button>
+                </form>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                <div class="card p-6 rounded-xl shadow-lg overflow-x-auto">
+                    <h2 class="text-xl font-semibold mb-4 border-b border-slate-700 pb-2">Istoric Curse</h2>
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-slate-400 text-sm">
+                                <th class="p-2">Șofer</th>
+                                <th class="p-2">Camion</th>
+                                <th class="p-2 text-center">Distanta</th>
+                                <th class="p-2 text-center">Consum Mediu</th>
+                                <th class="p-2 text-right">Acțiuni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('truckForm');
+        const tableBody = document.getElementById('tableBody');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Preluare date
+            const sofer = document.getElementById('sofer').value;
+            const camion = document.getElementById('camion').value;
+            const nrAuto = document.getElementById('nrAuto').value;
+            const kmStart = parseFloat(document.getElementById('kmStart').value);
+            const kmFinal = parseFloat(document.getElementById('kmFinal').value);
+            const litri = parseFloat(document.getElementById('litri').value);
+
+            // Calcule
+            const distanta = kmFinal - kmStart;
+            const consumMediu = ((litri / distanta) * 100).toFixed(2);
+
+            if (distanta <= 0) {
+                alert("Eroare: Km Sosire trebuie să fie mai mari decât Km Start!");
+                return;
+            }
+
+            // Adăugare în tabel
+            const row = `
+                <tr class="border-b border-slate-800 hover:bg-slate-800/50 transition">
+                    <td class="p-2 font-medium">${sofer}</td>
+                    <td class="p-2 text-sm text-slate-400">${camion} (${nrAuto})</td>
+                    <td class="p-2 text-center">${distanta} km</td>
+                    <td class="p-2 text-center font-bold ${consumMediu > 35 ? 'text-red-400' : 'text-green-400'}">${consumMediu} L/100km</td>
+                    <td class="p-2 text-right text-xs text-slate-500 italic">Validat ✅</td>
+                </tr>
+            `;
+
+            tableBody.innerHTML += row;
+            form.reset();
+        });
+    </script>
+</body>
+</html>
