@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VTC Manager - ETS2 Roleplay</title>
+    <title>Raport Cursa MRO EXPRESS SRL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #f8fafc; }
@@ -11,11 +11,10 @@
     </style>
 </head>
 <body class="p-4 md:p-8">
-
     <div class="max-w-6xl mx-auto">
         <header class="mb-10 text-center">
-            <h1 class="text-4xl font-bold text-blue-500">RAPORT CURSE</h1>
-            <p class="text-slate-400">Sistem Intern de Monitorizare a Curselelor</p>
+            <h1 class="text-4xl font-bold text-blue-500">Raport Cursa </h1>
+            <p class="text-slate-400">Sistem de Monitorizare - Baza de Date Live</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -24,95 +23,95 @@
                 <form id="truckForm" class="space-y-4">
                     <div>
                         <label class="block text-sm opacity-70">Nume Șofer</label>
-                        <input type="text" id="sofer" class="w-full bg-slate-900 border border-slate-700 rounded p-2 focus:border-blue-500 outline-none" required>
+                        <input type="text" id="sofer" class="w-full bg-slate-900 border border-slate-700 rounded p-2 outline-none focus:border-blue-500" required>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-sm opacity-70">Camion (Model)</label>
-                            <input type="text" id="camion" placeholder="ex: Scania S" class="w-full bg-slate-900 border border-slate-700 rounded p-2 outline-none" required>
+                            <label class="block text-sm opacity-70">Camion</label>
+                            <input type="text" id="camion" class="w-full bg-slate-900 border border-slate-700 rounded p-2 outline-none" required>
                         </div>
                         <div>
                             <label class="block text-sm opacity-70">Nr. Înmatriculare</label>
-                            <input type="text" id="nrAuto" placeholder="B 123 TEM" class="w-full bg-slate-900 border border-slate-700 rounded p-2 outline-none" required>
+                            <input type="text" id="nrAuto" class="w-full bg-slate-900 border border-slate-700 rounded p-2 outline-none" required>
                         </div>
                     </div>
-                    <hr class="border-slate-700">
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block text-sm opacity-70">Km Start</label>
                             <input type="number" id="kmStart" class="w-full bg-slate-900 border border-slate-700 rounded p-2 outline-none" required>
                         </div>
                         <div>
-                            <label class="block text-sm opacity-70">Km Sosire</label>
+                            <label class="block text-sm opacity-70">Km Final</label>
                             <input type="number" id="kmFinal" class="w-full bg-slate-900 border border-slate-700 rounded p-2 outline-none" required>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm opacity-70">Motorină Consumată (Litri)</label>
+                        <label class="block text-sm opacity-70">Litri Motorină</label>
                         <input type="number" id="litri" class="w-full bg-slate-900 border border-slate-700 rounded p-2 outline-none" required>
                     </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">Trimite Raportul</button>
+                    <button type="submit" id="btnTrimite" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">Trimite la Baza de Date</button>
                 </form>
             </div>
 
-            <div class="lg:col-span-2 space-y-6">
-                <div class="card p-6 rounded-xl shadow-lg overflow-x-auto">
-                    <h2 class="text-xl font-semibold mb-4 border-b border-slate-700 pb-2">Istoric Curse</h2>
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr class="text-slate-400 text-sm">
-                                <th class="p-2">Șofer</th>
-                                <th class="p-2">Camion</th>
-                                <th class="p-2 text-center">Distanta</th>
-                                <th class="p-2 text-center">Consum Mediu</th>
-                                <th class="p-2 text-right">Acțiuni</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                            </tbody>
-                    </table>
+            <div class="lg:col-span-2">
+                <div class="card p-6 rounded-xl shadow-lg">
+                    <h2 class="text-xl font-semibold mb-4 border-b border-slate-700 pb-2">Confirmare Trimitere</h2>
+                    <p class="text-slate-400">După ce apeși trimite, datele ajung instant în tabelul de admin.</p>
+                    <div id="statusMessage" class="mt-4 p-4 rounded hidden"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // --- AICI PUI LINK-UL TĂU ---
+        const GOOGLE_SCRIPT_URL = "PUNE_AICI_LINKUL_COPIAT_DE_LA_GOOGLE";
+        // ----------------------------
+
         const form = document.getElementById('truckForm');
-        const tableBody = document.getElementById('tableBody');
+        const btn = document.getElementById('btnTrimite');
+        const status = document.getElementById('statusMessage');
 
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', async function(e) {
             e.preventDefault();
+            btn.disabled = true;
+            btn.innerText = "Se trimite...";
 
-            // Preluare date
-            const sofer = document.getElementById('sofer').value;
-            const camion = document.getElementById('camion').value;
-            const nrAuto = document.getElementById('nrAuto').value;
-            const kmStart = parseFloat(document.getElementById('kmStart').value);
-            const kmFinal = parseFloat(document.getElementById('kmFinal').value);
+            const kmS = parseFloat(document.getElementById('kmStart').value);
+            const kmF = parseFloat(document.getElementById('kmFinal').value);
             const litri = parseFloat(document.getElementById('litri').value);
+            const dist = kmF - kmS;
+            const cons = ((litri / dist) * 100).toFixed(2);
 
-            // Calcule
-            const distanta = kmFinal - kmStart;
-            const consumMediu = ((litri / distanta) * 100).toFixed(2);
+            const data = {
+                sofer: document.getElementById('sofer').value,
+                camion: document.getElementById('camion').value,
+                nrAuto: document.getElementById('nrAuto').value,
+                kmStart: kmS,
+                kmFinal: kmF,
+                litri: litri,
+                consum: cons
+            };
 
-            if (distanta <= 0) {
-                alert("Eroare: Km Sosire trebuie să fie mai mari decât Km Start!");
-                return;
+            try {
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(data)
+                });
+                
+                status.classList.remove('hidden', 'bg-red-900');
+                status.classList.add('bg-green-900');
+                status.innerText = "✅ Succes! Cursa a fost înregistrată în Google Sheets.";
+                form.reset();
+            } catch (error) {
+                status.classList.remove('hidden', 'bg-green-900');
+                status.classList.add('bg-red-900');
+                status.innerText = "❌ Eroare! Verifică link-ul Google Script.";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Trimite la Baza de Date";
             }
-
-            // Adăugare în tabel
-            const row = `
-                <tr class="border-b border-slate-800 hover:bg-slate-800/50 transition">
-                    <td class="p-2 font-medium">${sofer}</td>
-                    <td class="p-2 text-sm text-slate-400">${camion} (${nrAuto})</td>
-                    <td class="p-2 text-center">${distanta} km</td>
-                    <td class="p-2 text-center font-bold ${consumMediu > 35 ? 'text-red-400' : 'text-green-400'}">${consumMediu} L/100km</td>
-                    <td class="p-2 text-right text-xs text-slate-500 italic">Validat ✅</td>
-                </tr>
-            `;
-
-            tableBody.innerHTML += row;
-            form.reset();
         });
     </script>
 </body>
